@@ -1,10 +1,156 @@
-
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
+<!DOCTYPE html>
+    <head>
+        <title>To Be set...</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- UIkit CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/css/uikit.min.css" />
+    </head>
     <body>
-      <div style="font: arial 11px #989898">
-        <p>Hashed URI data Schemer</p>
-      </div>
+        <div class="uk-section uk-section-secondary">
+            <div class="uk-container">
+                <h1>SDR Analysis Using D3.js</h1>
+                <hr />
+            </div>
+        </div>
+        <div class="uk-section uk-section-default" id="swatch">
+            <div class="uk-cover-container" id="paint"></div>
+        </div>    
+        <div class="uk-section uk-section-default">
+            <div class="uk-cover-container" id="svg-axis" style="color:red;"></div>
+        </div>        
     </body>
- </html>
+        <!-- UIkit JS -->
+        <script src="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit-icons.min.js"></script>
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+
+
+        <script>
+            
+            
+            const Wrench = (function (url,fnO=false,fnM=false,fnC=false, fnE=false) {  
+                let ws = url?new WebSocket(url):'';
+                let wsocket= {
+                    "socket": ws,
+                    "onopen": (ev)=>{
+                        wsocket.socket.send({'message':`recieved data: ${ev.data}`});
+                        console.log(`message template created from recieved message ${ev.data}`) ;
+                    },
+                    "onmessage": (ev)=>{
+                       
+                        let check = JSON.parse(ev.data);
+
+
+                        const instream = check.data;
+                        //instream.i = instream.data.map((v)=>{ return parseFloat(v[0])});
+                        //instream.q = instream.data.map((v)=>{ return parseFloat(v[1])});
+                        //instream.a = instream.data.map((v)=>{ return parseFloat(v[2])});
+
+                        const apply = applyAnalysis(instream);
+                    },
+                    "onclose": ()=>{},
+                    "onerror": ()=>{},
+                };
+                wsocket['socket'].binaryType = "arraybuffer";
+                return wsocket;
+            });
+
+            const scaleB = d3.scaleLinear([-6, 6], [0, 1160]);
+            const scaleL = d3.scaleLinear([6, -6], [0, 600]);
+            const axis = d3.axisBottom(scaleB);
+            const axisl = d3.axisLeft(scaleL);    
+            const svg = d3.select("#svg-axis").append("svg").attr("width", 1280).attr("height", 720).attr("id", "svg0").attr("class", 'uk-align-center');
+            const baseband = svg.selectAll('circle.baseband').data([]);
+
+
+            const exSocket = new Wrench('ws://10.0.0.5:3000');
+            exSocket.socket.onmessage = exSocket.onmessage;
+            exSocket.socket.onopen = exSocket.onopen;
+
+            const common = function(){
+                const fib = function(l) { return [1,1,...new Array(l)].map((v,i,a)=> { a[i+2] = a[i+1] + a[i]; return v;}); };
+                const golden = (fib(10)[10]/fib(10)[9]);
+                const dedup = (d) => { return Object.keys(d.reduce((obj,e) => {obj[e] = true; return obj;},{}));}
+                const random = function(digits){ let arrayL = new Uint32Array(1); let array = new Uint8Array(1); crypto.getRandomValues(arrayL);crypto.getRandomValues(array);let out = (digits < 1) ? "0.":"";digits = Math.sqrt(Math.pow(digits,2)); for (var i = 0; i < digits; i++) {crypto.getRandomValues(arrayL); crypto.getRandomValues(array);out += arrayL[0].toString()[array[0].toString()[0]];} return parseFloat(out); };
+                const baseline = {"b": function(x){ return Math.floor(( (x * golden) + (x * (golden-1 ))) % 255 );},"g": function(x) { return Math.floor((x * golden) % 255 );}, "r": function(x) { return Math.floor((x * (golden - 1)) % 255);}};
+                const color = function(seed,l,sequence=2, hueBriS=314) { let maxSeed = ((seed)=>{ return (seed>hueBriS)?sequence:seed;});let aRGB = ['r','g','b'];let ii = [[0,1,2],[1,2,0],[2,0,1],[0,2,1],[1,0,2],[2,1,0]]; let hex = function(seed) { let rgbO = [...ii[d3.randomInt(6)()]].map((v,i,a)=>{ return aRGB[v];}); return {'r': baseline[rgbO[0]](seed) , "g": baseline[rgbO[1]](seed), "b": baseline[rgbO[2]](seed) };}; let pallet = function(seed,l) { return [...new Array(l)].map((v,i,a) =>{ let s = maxSeed(seed); for(var x = 0; x<=i; ++x) { s = maxSeed(s * golden);} return hex(Math.floor(s)); });}; return { "pallet": pallet(seed,l)} };
+                return {
+                  'nFibonacci': fib,
+                  'pHi': golden,
+                  'colors': (seed,l,s,h)=>{return color(seed,l,Math.floor(c.random(2) * (c.goldenRatio - 1)),c.random(4)).pallet },
+                  'random': random,
+                  'getUnique': dedup,
+                  }
+                };
+
+//              'colors': (seed,l,s,h)=>{return color(seed,l,1,4100).pallet },
+//              let pSize = 22.625025;                  
+//
+                let c=common();
+                c.goldenRation = c.pHi;
+                let r = 9;
+                const tiles = c.colors(r, 10);
+                const colorRange = tiles.slice(1,9).map((v,i)=>{ return  `rgb(${v.r},${v.g},${v.b})`;});
+                const colors = d3.scaleLinear().domain([0,2]).range(colorRange);
+                const x = d3.scaleLinear().domain([-6,6]).range([1,1160]);
+                const y = d3.scaleLinear().domain([-6,6]).range([1,600]);
+    
+                let count = 0;
+                let pSize = 8.8888 * 12.876 * (c.pHi-1); //1/175 * 1280 * (c.goldenRatio)
+                const swatches = d3.select("#paint")
+                let chips = swatches.append('svg').attr("class", 'uk-align-center').attr("width",1280).attr("height",72).selectAll('g').data(tiles.sort((a,b)=> {return  a.b+a.g+a.r < b.b+b.g+b.r;}));
+                chips.join(enter=>enter.append('rect').attr('height',pSize).attr('width',pSize).attr('color', d=>{return `rgb(${d.r},${d.g},${d.b})`}).attr('fill', d=>{return `rgb(${d.r},${d.g},${d.b})`}).attr("transform", (d,i)=>{return `translate(${ (   (((i*pSize)/1280)-(Math.floor(i* (i/1280)))) - Math.floor( (((i*pSize)/1280)-(Math.floor(i* (i/1280)))))          ) * 1280 },${Math.floor(i/(1280/pSize))*pSize})`}), update=>update, exit=>exit.remove());
+
+
+
+
+            const svgAxis = svg;                
+            const st = 4;
+            const bg = 0;
+            svgAxis
+                .append('g')
+                    .attr('height', 720)
+                    .attr('width', 1280)
+                .append('rect')
+                    .attr('fill', `rgb(${tiles[bg].r},${tiles[bg].g},${tiles[bg].b})`)
+                    .attr('stroke', `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
+                    .attr('stroke-width', 1)
+                    .attr('width', 1280)
+                    .attr('height', 680);
+
+            svgAxis.append("g")
+                    .append("g")
+                        .attr("height", 600)
+                        .attr("transform", "translate(40,40)")
+                        .attr("color", `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
+                        .attr('fill', `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
+                        .call(axisl);
+            svgAxis
+                .append("g")
+                    .attr("transform", "translate(0,0)")
+                    .attr("height", 40)
+                    .append("g")
+                        .attr("transform", "translate(40,640)")
+                        .attr("color", `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
+                        .attr('fill', `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
+                    .call(axis);
+
+        function applyAnalysis(a){
+            let action = baseband.data([]);
+            action.enter().append('circle').attr('class','baseband');
+            action.exit().remove();
+            
+            action.data(a).enter()
+                  .append('circle')
+                    .attr('class', 'baseband')
+                    .attr('stroke', (d)=>{ console.log('hello'); return colors(parseFloat(d[2])); })
+                    .attr('fill', (d)=>{ return colors(parseFloat(d[2])); })
+                    .attr('r', (d)=>{ return parseFloat(d[2])*c.goldenRatio*c.goldenRatio; })
+                    .attr("cx", (d)=>{ return x(parseFloat(d[0])); })
+                    .attr("cy", (d)=>{ return y(parseFloat(d[1])); });
+
+            action.data(a).exit().remove();
+        }
+        </script>
+</html>
