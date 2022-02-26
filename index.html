@@ -1,156 +1,478 @@
 <!DOCTYPE html>
+<html>
     <head>
-        <title>To Be set...</title>
+        <title>And for my next trick... * Applicable fees in source comment.</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- UIkit CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/css/uikit.min.css" />
     </head>
     <body>
-        <div class="uk-section uk-section-secondary">
-            <div class="uk-container">
-                <h1>SDR Analysis Using D3.js</h1>
-                <hr />
-            </div>
+        <style type="text/css">
+            #NFT {padding-left: 0;height: 100%;overflow: visible;margin: 0;float: none;display: contents;position: unset;}
+            #composition {width: 100%;height: 100%;margin: 0;display: contents;align-content: center;padding: 0;}
+            #composition svg { min-height: 100%;max-height: 2160px;height: 100%;position: absolute;}
+        </style>
+        <div class="uk-section uk-section-default uk-preserve" id="NFT">
+            <div class="uk-container uk-container-large uk-preserve" id="composition"></div>
         </div>
-        <div class="uk-section uk-section-default" id="swatch">
-            <div class="uk-cover-container" id="paint"></div>
-        </div>    
-        <div class="uk-section uk-section-default">
-            <div class="uk-cover-container" id="svg-axis" style="color:red;"></div>
-        </div>        
     </body>
         <!-- UIkit JS -->
         <script src="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit-icons.min.js"></script>
         <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script type="text/javascript">
+            /* Fee for use or transmission in any commercial transaction 1 million dollars not withstanding */
+            let tminus = function() {
+                let count = new Date();
+                const timeline = {
+                    'history': [],
+                    'addEvent': function(item) { history.push([item,count.getTime()])},
+                    'eventByTime': function(time) { return history.filter((d,i)=>{ d[1]===time;})},
+                    'eventByItem': function(item) { return history.filter((d,i)=>{ JSON.stringify({'item':d[0]})===JSON.stringify({'item':item});});},
+                }
+                return {
+                    'addone': (event)=>{ timeline.addEvent(event); },
 
-
-        <script>
+                }
+            }
             
-            
-            const Wrench = (function (url,fnO=false,fnM=false,fnC=false, fnE=false) {  
-                let ws = url?new WebSocket(url):'';
-                let wsocket= {
-                    "socket": ws,
-                    "onopen": (ev)=>{
-                        wsocket.socket.send({'message':`recieved data: ${ev.data}`});
-                        console.log(`message template created from recieved message ${ev.data}`) ;
-                    },
-                    "onmessage": (ev)=>{
-                       
-                        let check = JSON.parse(ev.data);
-
-
-                        const instream = check.data;
-                        //instream.i = instream.data.map((v)=>{ return parseFloat(v[0])});
-                        //instream.q = instream.data.map((v)=>{ return parseFloat(v[1])});
-                        //instream.a = instream.data.map((v)=>{ return parseFloat(v[2])});
-
-                        const apply = applyAnalysis(instream);
-                    },
-                    "onclose": ()=>{},
-                    "onerror": ()=>{},
-                };
-                wsocket['socket'].binaryType = "arraybuffer";
-                return wsocket;
-            });
-
-            const scaleB = d3.scaleLinear([-6, 6], [0, 1160]);
-            const scaleL = d3.scaleLinear([6, -6], [0, 600]);
-            const axis = d3.axisBottom(scaleB);
-            const axisl = d3.axisLeft(scaleL);    
-            const svg = d3.select("#svg-axis").append("svg").attr("width", 1280).attr("height", 720).attr("id", "svg0").attr("class", 'uk-align-center');
-            const baseband = svg.selectAll('circle.baseband').data([]);
-
-
-            const exSocket = new Wrench('ws://10.0.0.5:3000');
-            exSocket.socket.onmessage = exSocket.onmessage;
-            exSocket.socket.onopen = exSocket.onopen;
-
-            const common = function(){
+            let gMine = function() {
                 const fib = function(l) { return [1,1,...new Array(l)].map((v,i,a)=> { a[i+2] = a[i+1] + a[i]; return v;}); };
                 const golden = (fib(10)[10]/fib(10)[9]);
-                const dedup = (d) => { return Object.keys(d.reduce((obj,e) => {obj[e] = true; return obj;},{}));}
-                const random = function(digits){ let arrayL = new Uint32Array(1); let array = new Uint8Array(1); crypto.getRandomValues(arrayL);crypto.getRandomValues(array);let out = (digits < 1) ? "0.":"";digits = Math.sqrt(Math.pow(digits,2)); for (var i = 0; i < digits; i++) {crypto.getRandomValues(arrayL); crypto.getRandomValues(array);out += arrayL[0].toString()[array[0].toString()[0]];} return parseFloat(out); };
+                const random = function(digits){ let arrayL = new Uint32Array(1); let array = new Uint8Array(1); crypto.getRandomValues(arrayL);crypto.getRandomValues(array);let out = (digits < 1) ? "0.":"";digits = Math.sqrt(Math.pow(digits,2)); for (var i = 0; i < digits; ++i) {crypto.getRandomValues(arrayL); crypto.getRandomValues(array);out += arrayL[0].toString()[array[0].toString()[0]];} return parseFloat(out); };
                 const baseline = {"b": function(x){ return Math.floor(( (x * golden) + (x * (golden-1 ))) % 255 );},"g": function(x) { return Math.floor((x * golden) % 255 );}, "r": function(x) { return Math.floor((x * (golden - 1)) % 255);}};
-                const color = function(seed,l,sequence=2, hueBriS=314) { let maxSeed = ((seed)=>{ return (seed>hueBriS)?sequence:seed;});let aRGB = ['r','g','b'];let ii = [[0,1,2],[1,2,0],[2,0,1],[0,2,1],[1,0,2],[2,1,0]]; let hex = function(seed) { let rgbO = [...ii[d3.randomInt(6)()]].map((v,i,a)=>{ return aRGB[v];}); return {'r': baseline[rgbO[0]](seed) , "g": baseline[rgbO[1]](seed), "b": baseline[rgbO[2]](seed) };}; let pallet = function(seed,l) { return [...new Array(l)].map((v,i,a) =>{ let s = maxSeed(seed); for(var x = 0; x<=i; ++x) { s = maxSeed(s * golden);} return hex(Math.floor(s)); });}; return { "pallet": pallet(seed,l)} };
-                return {
-                  'nFibonacci': fib,
-                  'pHi': golden,
-                  'colors': (seed,l,s,h)=>{return color(seed,l,Math.floor(c.random(2) * (c.goldenRatio - 1)),c.random(4)).pallet },
-                  'random': random,
-                  'getUnique': dedup,
-                  }
+                const color = function(seed,l,sequence=2, hueBriS=314) { let maxSeed = ((seed)=>{ return (seed>hueBriS)?sequence*golden:seed;});let aRGB = ['r','g','b'];let ii = [[0,1,2],[1,2,0],[2,0,1],[0,2,1],[1,0,2],[2,1,0]]; let hex = function(seed) { let rgbO = [...ii[d3.randomInt(6)()]].map((v,i,a)=>{ return aRGB[v];}); return {'r': baseline[rgbO[0]](seed) , "g": baseline[rgbO[1]](seed), "b": baseline[rgbO[2]](seed) };}; let pallet = function(seed,l) { return [...new Array(l)].map((v,i,a) =>{ let s = maxSeed(seed); for(var x = 0; x<=i; ++x) { s = maxSeed(s * golden);} return hex(Math.floor(s)); });}; return { "pallet": pallet(seed,l)} };
+                let util = {
+                    'nFibonacci': fib,
+                    'pHi': golden,
+                    'colors': (seed,l,s,h)=>{return color(seed,l,1,20048).pallet },
+                    'random': random,
                 };
+               
+                return { 
+                    'functions': {
+                        "nFibonacci": util.nFibonacci,
+                        "pHi": golden,
+                        "colorPallet": util.colors,
+                        "secRandom": util.random
+                    }
+                }
+            };
 
-//              'colors': (seed,l,s,h)=>{return color(seed,l,1,4100).pallet },
-//              let pSize = 22.625025;                  
-//
-                let c=common();
-                c.goldenRation = c.pHi;
-                let r = 9;
-                const tiles = c.colors(r, 10);
-                const colorRange = tiles.slice(1,9).map((v,i)=>{ return  `rgb(${v.r},${v.g},${v.b})`;});
-                const colors = d3.scaleLinear().domain([0,2]).range(colorRange);
-                const x = d3.scaleLinear().domain([-6,6]).range([1,1160]);
-                const y = d3.scaleLinear().domain([-6,6]).range([1,600]);
-    
-                let count = 0;
-                let pSize = 8.8888 * 12.876 * (c.pHi-1); //1/175 * 1280 * (c.goldenRatio)
-                const swatches = d3.select("#paint")
-                let chips = swatches.append('svg').attr("class", 'uk-align-center').attr("width",1280).attr("height",72).selectAll('g').data(tiles.sort((a,b)=> {return  a.b+a.g+a.r < b.b+b.g+b.r;}));
-                chips.join(enter=>enter.append('rect').attr('height',pSize).attr('width',pSize).attr('color', d=>{return `rgb(${d.r},${d.g},${d.b})`}).attr('fill', d=>{return `rgb(${d.r},${d.g},${d.b})`}).attr("transform", (d,i)=>{return `translate(${ (   (((i*pSize)/1280)-(Math.floor(i* (i/1280)))) - Math.floor( (((i*pSize)/1280)-(Math.floor(i* (i/1280)))))          ) * 1280 },${Math.floor(i/(1280/pSize))*pSize})`}), update=>update, exit=>exit.remove());
-
-
-
-
-            const svgAxis = svg;                
-            const st = 4;
-            const bg = 0;
-            svgAxis
-                .append('g')
-                    .attr('height', 720)
-                    .attr('width', 1280)
-                .append('rect')
-                    .attr('fill', `rgb(${tiles[bg].r},${tiles[bg].g},${tiles[bg].b})`)
-                    .attr('stroke', `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
-                    .attr('stroke-width', 1)
-                    .attr('width', 1280)
-                    .attr('height', 680);
-
-            svgAxis.append("g")
-                    .append("g")
-                        .attr("height", 600)
-                        .attr("transform", "translate(40,40)")
-                        .attr("color", `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
-                        .attr('fill', `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
-                        .call(axisl);
-            svgAxis
-                .append("g")
-                    .attr("transform", "translate(0,0)")
-                    .attr("height", 40)
-                    .append("g")
-                        .attr("transform", "translate(40,640)")
-                        .attr("color", `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
-                        .attr('fill', `rgb(${tiles[st].r},${tiles[st].g},${tiles[st].b})`)
-                    .call(axis);
-
-        function applyAnalysis(a){
-            let action = baseband.data([]);
-            action.enter().append('circle').attr('class','baseband');
-            action.exit().remove();
+            let grad = [];
+            const d = new gMine();
+            const c = d.functions;
+            let meBeTheOne = 0;
+            let RANDOM = [...new Array(100)].map((d)=>{ return c.secRandom(3);}).filter((d)=>{return d});
+            let RANDOM2 = [...new Array(100)].map((d)=>{ return c.secRandom(1);}).filter((d)=>{return d});
+            let useRandom = ()=>{  if(RANDOM.length) {} else {RANDOM = [...new Array(200)].map((d)=>{ return c.secRandom(3);}).filter((d)=>{return d}); } let r = RANDOM.pop(); return r;};
+            let useRandom2 = ()=>{  if(RANDOM2.length) {} else {RANDOM2 = [...new Array(200)].map((d)=>{ return c.secRandom(2);}).filter((d)=>{return d}); } let r = RANDOM2.pop(); return r;};
+            let height = 1080;
+            let margin = .02 * (c.pHi - 1 ) * height;
+            let width = (height * c.pHi) - margin - margin;
+            height = height - margin - margin;            
+            let dims = {'w': width, 'h': height};
+            let palletSize = c.nFibonacci(useRandom());
+            let fNft = d3.select("#NFT").select('#composition').append('svg').attr('alt', "you're fucking welcome, all rights reserved");
+            let defs = fNft.attr('class','shapes').append('defs');
+            let baseTid, rebaseTid, bgS, bgE =  '';
+            let colorCodes = [];
+            let defineGradiants = function(d) {
+                let data = d.sort((a,b)=>{return  ( ((1/(a.b+2)) * a.g) + a.r) < ((1/(b.b+2)) * b.g) + b.r;}).map((v,i,a)=>{ 
+                    let color = `rgb(${v.r},${v.g},${v.b})`;
+                    colorCodes.push({'rgb': color, 'hex': '#' + ('0'+v.r.toString(16)).slice(-2) + ('0'+v.g.toString(16)).slice(-2) + ('0'+v.b.toString(16)).slice(-2)});
+                    let stopC = bgS = `rgb(${v.r},${v.g},${v.b})`, startC = bgE = i>0?`rgb(${a[i-1].r},${a[i-1].g},${a[i-1].b})`:'#fff', tId = baseTid =  `g${i}a`, rebaseTid = `g${i}b`;
+                    grad.push(`url(#${tId})`);  
+                    grad.push(`url(#${rebaseTid})`);  
+                    return `rgb(${v.r},${v.g},${v.b})`;});
+                let action = defs.selectAll('.grad').data(data);
+                let prep = action.enter();
+                let lg1 = prep.append('linearGradient').attr('class','grad').attr('x1', '0%').attr('x2', '100%').attr('y1', '0%').attr('y2', '0%').attr('id', (d,i)=>{ return `g${i}a`;});
+                lg1.append('stop').attr('offset', '0%').attr('style', (d,i)=>{return `stop-color:${i>0?data[i-1]:'#fff'};stop-opacity:1`;});  
+                lg1.append('stop').attr('offset', '100%').attr('style', (d,i)=>{return `stop-color:${data[i]};stop-opacity:1`;});
+                let lg2 = prep.append('linearGradient').attr('x1', '200%').attr('x2', '-100%').attr('y1', '100%').attr('y2', '0%').attr('id', (d,i)=>{return `g${i}b`;});
+                lg2.append('stop').attr('offset', '0%').attr('style', (d,i)=>{return `stop-color:${i>0?data[i-1]:'#fff'};stop-opacity:1;`;});  
+                lg2.append('stop').attr('offset', '100%').attr('style', (d,i)=>{return `stop-color:${data[i]};stop-opacity:1`;});
+                action.exit().remove();
+                return data;
+            };
+      
+            let swatchSize = 1000;
+            let colors = c.colorPallet(3,swatchSize,3,palletSize[palletSize.length-1]).sort((a,b)=> {return  ( ((1/(a.b+2)) * a.g) + a.r) < ((1/(b.b+2)) * b.g) + b.r;});
+            defineGradiants(colors);
+            let group = fNft.selectAll('g.canvas').data([]);
+            let circleGroup = fNft.selectAll('g.circle').data([]);
+            let shapeGroup = fNft.selectAll('g.shapes').data([]);
+            let rectangleGroup = fNft.selectAll('g.rectangle').data([]);
+            let polyGroup = fNft.selectAll('g.poly').data([]);
+            let flower = fNft.selectAll('g.flower').data([]);
+            let x = d3.scaleLinear().domain([margin, width]).range([0, width + margin + margin]);
+            let y = Y = d3.scaleLinear().domain([margin, height]).range([0, height + margin + margin]);
+            let z = Z = (n)=>{ let c = colors[useRandom()];  return `rgb(${c.r},${c.g},${c.b})`; };
             
-            action.data(a).enter()
-                  .append('circle')
-                    .attr('class', 'baseband')
-                    .attr('stroke', (d)=>{ console.log('hello'); return colors(parseFloat(d[2])); })
-                    .attr('fill', (d)=>{ return colors(parseFloat(d[2])); })
-                    .attr('r', (d)=>{ return parseFloat(d[2])*c.goldenRatio*c.goldenRatio; })
-                    .attr("cx", (d)=>{ return x(parseFloat(d[0])); })
-                    .attr("cy", (d)=>{ return y(parseFloat(d[1])); });
+          
 
-            action.data(a).exit().remove();
-        }
+            
+          
+            let CanvasLayer = function(d,dims,m) {
+                let stopC = bgS = Z(useRandom()), startC = bgE = Z(useRandom()), tId = baseTid =  `g${useRandom()}a`, rebaseTid = `g${useRandom()}b`;
+                let lg1 = defs.append('linearGradient').attr('x1', '100%').attr('x2', '0%').attr('y1', '200%').attr('y2', '-100%').attr('id', tId);
+                lg1.append('stop').attr('offset', '0%').attr('style', `stop-color:${startC};stop-opacity:1`);  
+                lg1.append('stop').attr('offset', '100%').attr('style', `stop-color:${stopC};stop-opacity:1`);
+                let lg2 = defs.append('linearGradient').attr('x1', '200%').attr('x2', '-100%').attr('y1', '1%').attr('y2', '0%').attr('id', rebaseTid);
+                lg1.append('stop').attr('offset', '0%').attr('style', `stop-color:${startC};stop-opacity:1`);  
+                lg1.append('stop').attr('offset', '100%').attr('style', `stop-color:${stopC};stop-opacity:1`);
+                let blur = defs.append('filter');
+                blur.attr('id', "f1").attr('x',0).attr('y',0).append('feGaussianBlur').attr('in',"SourceGraphic").attr('stdDeviation',c.pHi);
+                let specl = defs.append('filter').attr('id', 'f2');
+                let speclL = specl.append('feSpecularLighting').attr('result','specOut').attr('specularExponent', 8).attr('specularConstant',0.99).attr('lighting-color', bgE);
+                speclL.append('fePointLight').attr('x',50).attr('y',75).attr('z',200);
+                specl.append('feComposite').attr('in',"SourceGraphic").attr('in2',"specOut").attr('operator',"arithmetic").attr('k1',0).attr('k2',1).attr('k3',1).attr('k4',0);
+
+                let action = group.data(d);
+                action.enter() 
+                        .append('g')
+                            .attr('class', 'canvas')
+                            .append('rect')
+                                .attr('width', Math.floor(dims.width + m.l + m.r))
+                                .attr('height', Math.floor(dims.height + m.t + m.b))
+                                .attr('stroke-width', 2 * (c.pHi))
+                                .attr('stroke', (d)=>{  return grad[meBeTheOne+9];})
+                                .attr('fill', (d)=>{ return grad[meBeTheOne+16];});
+                    action.exit()
+                        .remove();
+            };
+
+            let circleLayer = function(d,dims,m,stW=useRandom2,skew=false) {
+                let width = dims.width;
+                let height = dims.height;
+                let points = [...[...new Array(5)].map((v,i)=>{ return width * .1 * i * (Math.pow((c.pHi - 1), 1))}),
+                ...[...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return height * .1 * i * (Math.pow((c.pHi - 1), 1))}),
+                ...[...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(10)].map((v,i)=>{ return width * (i*c.pHi)}),
+                ...[...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return height * .1 * i * (Math.pow((c.pHi), 1))}),
+                ...[...new Array(5)].map((v,i)=>{ return width * .01 * i * (Math.pow((c.pHi), 1))}),
+                ...[...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)],
+                ];
+
+                /* flower of life = 
+
+                (𝑥−𝑎)^2+(𝑦−𝑏)^2=𝑟^2
+                (𝑥−(𝑎−𝑟⋅0.5))^2+(𝑦−((𝑟^2−(0.5𝑟)^2 )^0.5+𝑏))^2=𝑟^2
+                (𝑥−(𝑎−𝑟))^2+(𝑦−𝑏)^2=𝑟^2
+
+                */
+                let pathPoints = [];
+                while (pathPoints.length < 1000) { pathPoints = [...[...new Array(points.length)].map((d,i)=>{ return i;}), ...pathPoints] }
+
+                let path = [...new Array(2000)].map(()=>{ let myR = useRandom(); 
+
+                    return points[pathPoints[myR]];}).filter((v)=>{ return v;}).sort((a,b)=>{ return a<b;});
+                //d = [...d,...d];
+                let y = [useRandom(),useRandom(),useRandom()];
+                //let grad = [];
+                let data = d.map((d,i)=>{ 
+
+                    let tId = `g${useRandom()}${useRandom()}`;
+                    let x1Grade = y1Grade = y2Grade = 0;
+                    let lg1 = 
+                    defs.append('linearGradient')
+                        .attr('x1', `${x1Grade}%`)
+                        .attr('y1', `${y1Grade}%`)
+                        .attr('x2', '100%')
+                        .attr('y2', `${y2Grade}%`)
+                        .attr('id', tId);
+                        lg1
+                        .append('stop')
+                        .attr('offset', '0%')
+                        .attr('style', `stop-color:${Z(1)};stop-opacity:1`);  
+                        lg1.append('stop').attr('offset', '100%').attr('style', `stop-color:${Z(1)};stop-opacity:1`);
+                    grad.push(`url(#${tId})`);
+                    let y = useRandom();
+                    let cy = path[y];
+                    let x = useRandom();
+                    let cx = path[x];
+                    let z = useRandom();
+                    let r = path[z];
+                    cy = (cy>r*.5)?cy:cy+(r*.5);
+                    let circle = {'cx': cx, 'cy': cy, 'r': r, 'y': y[0] * Math.pow(c.pHi,i+1), 's': 1};
+                    return {'circle':circle} });
+                    
+       
+                
+                
+                let skewx = useRandom();
+                let action = circleGroup.data(data);
+                
+                let group = action.enter().append('g')
+                            .attr('class', 'circle')
+                            .attr('filter', (d,i)=>{ return (i%7>4)?'none':'url(#f1)';});
+                            //.attr('transform', `skewX(${useRandom2()})`)
+                            //.attr('transform', `skewY(${skewx})`);
+                    group.attr('transform', (d,i)=>{ return `scale(${(i%2)?.125:.0625})`});
+                    group.append('circle')
+                            .attr('fill', (d,i)=>{ return 'none';  })//
+                            //.attr('stroke-width', (d,i)=>{ return d.circle.r *  useRandom2() * Math.pow( (c.pHi - 1) ,i)})
+                            //.attr('stroke-width', (d,i)=>{ return .25* d.circle.r * (c.pHi -1);})
+                            .attr('stroke-width', (d,i)=>{ return d.circle.s; })//((c.pHi - 1) * d.circle.r)})
+                            .attr('stroke', (d,i)=>{ return grad[((meBeTheOne+14))]; return (i>data.length*.97)?`url(#${rebaseTid})`:grad[(i)%4];})
+                            .attr('stroke-opacity', 1)
+                            .attr('fill', (d,i)=>{ return i%5>3?grad[((meBeTheOne+14))]:'none'; if(d.circle.r > dims.width*.25) { return 'none';} return grad[i]; (data.length * .01 < i)?grad[i]:'none';})
+                            .attr('cy', (d,i)=>{  let val = ((data.length-(data.length%4))/4) * (dims.height/data.length) * ((i%4)+1) ; let val2 = ((i%2==0)?2:1)*d.circle.r * .5 * (2/dims.height) * dims.height; return val;})
+                            .attr('cx', (d,i)=>{ let val = ((data.length-(data.length%2))/2) * (dims.width/data.length) * ((i%2)+1) ; let val2 = ((i%2==0)?2:1)*d.circle.r * .5 * (2/dims.width) * dims.width; return (i%3!==0)?val - (d.circle.r * .5):val + (d.circle.r * .5); }) //(i * c.pHi * d.circle.r * .0125) +
+                            .attr('r', (d,i)=>{ let r = d.circle.r; return r})
+                            .attr('fill-opacity', 1)
+                            .attr('transform', (d,i)=>{return (skew)?'skewY(0)':`skewX(${(i>data.length*.75)?skewx:useRandom()})`})
+                            .attr('transform', (d,i)=>{return (skew)?'skewX(0)':`skewY(${(i>data.length*.75)?skewx:useRandom()})`})
+                           
+
+                            //.attr('transform', `skewY(${useRandom2()})`)
+                            //.attr('transform', (d,i)=>{ return `rotate3d(1, 1, 1, ${i*c.pHi}deg)`})
+                            ;
+                    group.attr('transform', (d,i)=>{ return `translate(${useRandom2(i)},${useRandom2(i)})`});
+
+                    action
+                    .exit().remove();
+            };
+
+
+            let rectangleLayer = function(d, dims, m) {
+            
+                //let grad = [];
+                let data = d.map((d,i)=>{ 
+                    let tId = `g${useRandom()}${useRandom()}`;
+                    let x1Grade = y1Grade = y2Grade = 0;
+                    let lg1 = 
+                    defs.append('linearGradient')
+                        .attr('x1', `${x1Grade}%`)
+                        .attr('y1', `${y1Grade}%`)
+                        .attr('x2', '100%')
+                        .attr('y2', `${y2Grade}%`)
+                        .attr('id', tId);
+                        lg1
+                        .append('stop')
+                        .attr('offset', '0%')
+                        .attr('style', `stop-color:${Z(1)};stop-opacity:1`);  
+                        lg1.append('stop').attr('offset', '100%').attr('style', `stop-color:${Z(1)};stop-opacity:1`);
+                    grad.push(`url(#${tId})`);                    
+                let h = dims.height * Math.pow((c.pHi - 1), i+1);
+                let w = h*c.pHi;
+                let x = (w * (c.pHi - 1));
+                let y = (h * (c.pHi - 1));
+                return { 'h': h, 'w': w, 'x': x, 'y': y, 'sx': useRandom2(), 'sy': useRandom2(), 'sw': 16 };
+                });
+
+                data2 = [...data.map((d)=> {
+                        let x2 = dims.width - d.x - d.w + m.l + m.r;
+                    return { 'h': d.h, 'w': d.w , 'x': x2 , 'y': d.y, 'sx': d.sx, 'sy': d.sy, 'sw': d.sw };
+                }) ];
+                data2 = [...data2,...data.map((d)=> {
+                    let y2 = dims.height - d.y - d.h + m.t + m.b;
+                return { 'h': d.h, 'w': d.w , 'x': d.x , 'y': y2, 'sx': d.sx, 'sy': d.sy, 'sw': d.sw };
+                }) ];
+                data2 = [...data2,...data.map((d)=> {
+                        let y2 = dims.height - d.y - d.h + m.t + m.b;
+                        let x2 = dims.width - d.x - d.w + m.l + m.r;
+                    return { 'h': d.h, 'w': d.w , 'x': x2 , 'y': y2, 'sx': d.sx, 'sy': d.sy, 'sw': d.sw };
+                }) ];
+                data2 = [...data,...data2];
+                let action = rectangleGroup.data(data2);
+                action
+                    .enter()
+                    .append('g')
+                        .attr('class', 'rectangle')
+                        .attr('transform', 'scale(1)')
+                        .attr('stroke-opacity', (d)=>{return ((d)=>{return useRandom2()/useRandom()})()})
+                    .append('rect')
+                        .attr('stroke-width', (d)=>{return d.sw;})
+                        .attr('stroke', (d,i)=>{ return grad[(meBeTheOne+16)];}) 
+                        .attr('fill', 'none')
+                        .attr('x', (d)=>{return d.x;})
+                        .attr('y', (d)=>{return d.y;})
+                        .attr('width', (d)=>{return d.w;})
+                        .attr('height', (d)=>{return d.h;})
+                        .attr('transform', (d)=>{return `skewY(${d.sy})`;})
+                        .attr('transform', (d)=>{return `skewX(${d.sx})`;});
+
+                    action
+                    .exit().remove();
+
+        };
+
+            let shapeLayer = function(d,dims,m,stW=1){
+                let width = dims.width;
+                let height = dims.height;
+                let points = [...[...new Array(5)].map((v,i)=>{ return width * 1 * i * (Math.pow((c.pHi - 1), 1))}),
+                ...[...c.nFibonacci(14).slice(5,5),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return width * .1 * i * (Math.pow((c.pHi -1), 1))}),
+                ...[...c.nFibonacci(14).slice(5,5),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return height * .1 * i * (Math.pow((c.pHi - 1), 1))}),
+                ...[...c.nFibonacci(14).slice(5,5),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return width * .01 * i * (Math.pow((c.pHi), 1))}),
+                ...[...c.nFibonacci(14).slice(5,5),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(10)].map((v,i)=>{ return width * (i*c.pHi)}),
+                ...[...c.nFibonacci(14).slice(5,5),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return width * .001 * i * (Math.pow((c.pHi - 1), 1))}),
+                ...[...new Array(5)].map((v,i)=>{ return height * .01 * i * (Math.pow((c.pHi), 1))}),
+                ];
+                let pathPoints = [];
+                while (pathPoints.length < 1000) { pathPoints = [...[...new Array(points.length)].map((d,i)=>{ return i;}), ...pathPoints] }
+                let path = [...new Array(1000)].map((v,i)=>{ 
+                    let myR = useRandom(); 
+                    return points[pathPoints[myR]]>dims.height?points[pathPoints[myR]]:points[pathPoints[myR]];}).filter((v)=>{ return v;});
+               
+                //let grad = [];
+                let randoms = d.slice(0,d.length).map((d,i)=>{ return {...[...new Array(5)],...[dims.width *.25 + useRandom(),useRandom(),useRandom2(),useRandom2(),useRandom2()]};});
+                let data = d.map((d,I)=>{ 
+                    let i = I;
+                    let tId = `g${useRandom()}${useRandom()}${useRandom()}`;
+                    let x1Grade = y1Grade = y2Grade = 0;
+
+                    let lg1 = 
+                    defs.append('linearGradient')
+                        .attr('x1', `${x1Grade}%`)
+                        .attr('y1', `${y1Grade}%`)
+                        .attr('x2', '100%')
+                        .attr('y2', `${y2Grade}%`)
+                        .attr('id', tId);
+                    lg1 .append('stop')
+                        .attr('offset', '0%')
+                        .attr('style', `stop-color:${Z(useRandom())};stop-opacity:1`);  
+                    lg1 .append('stop').attr('offset', '100%').attr('style', `stop-color:${Z(useRandom())};stop-opacity:1`);
+                    grad.push(`url(#${tId})`);
+                //let commands = ['M','c','l','c','c','l','l','c','c','c','l','Z'];
+                let commands = (i%3==2)?['M','c','c','c','c','c','c','c','c','c','c','c','c','Z']:['M','l','c','c','c','c','c','c','l','c','c','c','c','Z'];
+                let shape = [`${commands[0]} ${useRandom() + path[i + i*2]},${useRandom() + path[i + i*2 +1]}`,
+                    ...commands.slice(1,commands.length-1)
+                    .map( (v,i,a)=>{
+                        return (v==='l'|| v==='L')
+                        ?`${v} ${path.slice(I + i*8).slice(0,2).map((d)=>{return Math.sqrt((Math.pow(Math.floor(d),2)))}).join(',')}`
+                        :`${v} ${path.slice(I + i*8).slice(0,6).map((d)=>{return Math.sqrt(Math.pow(d,2));}).join(' ')}`
+                            .split(' ').map( (v,i,a)=>{ return (i%2==1)?`${v},`:`${v} `;}).join('')})];
+                    return shape
+                });
+
+                let action = shapeGroup.data(data);
+                let group = action
+                    .enter()
+                        .append('g');
+                    group.attr('class', 'shapes');
+
+                            //.attr('transform', (d,i)=>{ return `translate(${dims.height},${dims.width})`;});
+
+                    group   .append('path')
+                            .attr('stroke-width', (d,i)=>{ return useRandom2() + 88;})//randoms[`${i}`][4];})
+                            .attr('stroke', (d,i)=>{ return grad[(meBeTheOne+14)];})
+                            .attr('stroke-opacity', 1)
+                            .attr('fill', (d,i)=>{ return i%3>1?grad[(meBeTheOne+14)]:'none';})
+                            .attr('d', (d)=>{ return `${d.join(' ')+'Z'}`})
+                    group
+                            .attr('transform', (d,i)=>{ return `skewX(${randoms[i][3]})`;});
+                    group
+                            .attr('transform', (d,i)=>{ return `skewY(${randoms[i][2]})`;});
+                    group        
+                            .attr('transform', (d,i)=>{ return `translate(${randoms[i][1]} ${randoms[i][0]})`;});
+                    group.attr('transform', 'scale(.15)');
+                     action.exit().remove();
+
+            };
+            let polyLayer = function(d,dims,m,stW=1){
+                let width = dims.width;
+                let height = dims.height;
+                let points = [...[...new Array(5)].map((v,i)=>{ return width * .1 * i * (Math.pow((c.pHi - 1), 1))}),
+                ...[...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return height * .1 * i * (Math.pow((c.pHi - 1), 1))}),
+                ...[...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)],
+                ...[...new Array(5)].map((v,i)=>{ return height * .1 * i * (Math.pow((c.pHi), 1))}),
+                ...[...new Array(5)].map((v,i)=>{ return width * .01 * i * (Math.pow((c.pHi), 1))}),
+                ...[...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)],
+                ];
+                let pathPoints = [];
+                while (pathPoints.length < 1000) { pathPoints = [...[...new Array(points.length)].map((d,i)=>{ return i;}), ...pathPoints] }
+                let ref = [];
+                
+                //let grad = [];
+                let randoms = d.slice(0,d.length).map((d,i)=>{ return {...[...new Array(5)],...[useRandom2(),useRandom2(),useRandom2(),useRandom2(),useRandom2()]};});
+               d = d.map((d,i)=>{ 
+                    let tId = `g${useRandom()}${useRandom()}${useRandom()}${useRandom()}`;
+                    let x1Grade = y1Grade = y2Grade = 0;
+                    let lg1 = 
+                    defs.append('linearGradient')
+                        .attr('x1', `${x1Grade}%`)
+                        .attr('y1', `${y1Grade}%`)
+                        .attr('x2', '100%')
+                        .attr('y2', `${y2Grade}%`)
+                        .attr('id', tId);
+                    lg1
+                        .append('stop')
+                        .attr('offset', '0%')
+                        .attr('style', `stop-color:${z(1)};stop-opacity:1`);  
+                    lg1.append('stop').attr('offset', '100%').attr('style', `stop-color:${z(1)};stop-opacity:1`);         
+                    grad.push(`url(#${tId})`)           
+                    let path = [...new Array(6)].map(()=>{ 
+                    let myR = useRandom(); 
+                            return points[pathPoints[myR]]>dims.height?x(points[pathPoints[myR]]):y(points[pathPoints[myR]]);}).filter((v)=>{ return v;});
+                    ref = path;
+                    let poly = `${path.pop()},${path.pop()} ${ref[0]*c.pHi},${ref[1]} ${ref[0]*c.pHi * .5},${ref[0] + ref[1] * c.pHi}`;
+                    return poly;});
+                let action = shapeGroup.data(d);
+                let group = action.enter().append('g')
+                    .attr('class','polys')
+                    .attr('transform', 'skewX(-120)')
+                    .attr('opacity', '.125')
+                    .attr('transform', `rotate(-${47 * c.pHi})`);
+                 group.append('polygon')
+                    .attr('stroke-width',(d,i)=>{return useRandom2();})
+                    .attr('stroke-opacity', .3)
+                    .attr('stroke', (d,i)=>{ return grad[(meBeTheOne+28)];})                    
+                    .attr('fill', (d,i)=>{  return grad[(meBeTheOne+15)];; return `url(#${baseTid})`; let num = useRandom(); let color = z(num); return color;})
+                    .attr('fill-opacity', .3)
+                    .attr('points', (d)=>{ return d;})
+                    .attr('transform','scale(2)')
+                    .attr('transform', (d,i)=>{ return `skewX(${randoms[i][2]})`;})
+                    .attr('transform', (d,i)=>{ return `skewY(${randoms[`${i}`][3]})`;})
+                    .attr('transform', (d,i)=>{ return `rotate(${randoms[`${i}`][4]})`;});
+                group.attr('transform','scale(8)');
+                group.attr('filter', 'url(#f1)');
+                action.exit().remove();
+
+            };         
+            let drawFoL = function(data) {
+                let center = {'x':(dims.w / 16) , 'y': (dims.h / 16)}
+                let radius = (dims.h/16 * (c.pHi-1) /6);
+                let action = flower.data(data);
+                let petals = action.enter().append('g').attr('class','flower');
+                petals
+                    .append('circle')
+                        .attr('cx', (d,i)=> {return d.cx;})
+                        .attr('cy', (d,i)=> {return d.cy;})
+                        .attr('r', (d,i)=> {return d.r;})
+                        .attr('fill', (d,i)=>{ return 'none'; return i===i?`${grad[20*7+18]}`:'none'})
+                        .attr('fill-opacity', 1)
+                        .attr('stroke-width', .175)
+                        .attr('stroke-opacity', .04)
+                        .attr('stroke', (d,i)=> {return grad[meBeTheOne+6];})
+                        .attr('transform', `skewY(${useRandom2()})`);
+                
+                         action.exit().remove();
+            };               
+            fNft.attr('width', "100%"/*Math.floor(width + margin + margin) */).attr('height', '100%' /* Math.floor(height + margin + margin) */).attr('class', 'uk-preserve');
+            let draw = ((c,dims={'width':1280,'height':720},m={'t':10,'b':10,'l':10,'r':10})=>{
+                let count = 0;
+                CanvasLayer([...new Array(1)], {'width': width, 'height': height},{'t':margin,'b':margin,'l':margin,'r':margin});
+                polyLayer([...new Array(useRandom())],dims,m);
+                let test = 0;
+                let u = [];
+
+                console.log(u);
+                      rectangleLayer([...new Array(8)],dims,m,32); 
+                      circleLayer([...new Array(useRandom())],dims,m,useRandom2,true);
+                      shapeLayer([...new Array(1)], dims,m,2);
+            });
+            draw(c,{'width': width, 'height': height},{'t':margin,'b':margin,'l':margin,'r':margin});
+
         </script>
 </html>
