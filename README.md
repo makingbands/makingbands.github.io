@@ -8,7 +8,7 @@ work.  This includes the color pallets created by the code which is not free to 
 Intellectual Property.
 
 If you want to use the art for a single installment as part of an interior design, gift, or personal 
-collection I will exchange full rights to a composition in for an a different composition of the same 
-dimensions created by the same process on the same medium.  
+collection I will exchange full rights to a composition for a different composition of my choosing 
+with the same dimensions created with the same process using the same materials.
 
 
