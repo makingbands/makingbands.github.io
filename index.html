@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>And for my next trick... * Applicable fees in source comment.</title>
+        <title>To Be set...</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- UIkit CSS -->
@@ -22,7 +22,6 @@
         <script src="https://cdn.jsdelivr.net/npm/uikit@3.11.1/dist/js/uikit-icons.min.js"></script>
         <script src="https://d3js.org/d3.v7.min.js"></script>
         <script type="text/javascript">
-            /* Fee for use or transmission in any commercial transaction 1 million dollars not withstanding */
             let tminus = function() {
                 let count = new Date();
                 const timeline = {
@@ -73,8 +72,8 @@
             let width = (height * c.pHi) - margin - margin;
             height = height - margin - margin;            
             let dims = {'w': width, 'h': height};
-            let palletSize = c.nFibonacci(useRandom());
-            let fNft = d3.select("#NFT").select('#composition').append('svg').attr('alt', "you're fucking welcome, all rights reserved");
+            let palletSize = 16581375;
+            let fNft = d3.select("#NFT").select('#composition').append('svg');
             let defs = fNft.attr('class','shapes').append('defs');
             let baseTid, rebaseTid, bgS, bgE =  '';
             let colorCodes = [];
@@ -94,12 +93,13 @@
                 let lg2 = prep.append('linearGradient').attr('x1', '200%').attr('x2', '-100%').attr('y1', '100%').attr('y2', '0%').attr('id', (d,i)=>{return `g${i}b`;});
                 lg2.append('stop').attr('offset', '0%').attr('style', (d,i)=>{return `stop-color:${i>0?data[i-1]:'#fff'};stop-opacity:1;`;});  
                 lg2.append('stop').attr('offset', '100%').attr('style', (d,i)=>{return `stop-color:${data[i]};stop-opacity:1`;});
+                
                 action.exit().remove();
                 return data;
             };
       
             let swatchSize = 1000;
-            let colors = c.colorPallet(3,swatchSize,3,palletSize[palletSize.length-1]).sort((a,b)=> {return  ( ((1/(a.b+2)) * a.g) + a.r) < ((1/(b.b+2)) * b.g) + b.r;});
+            let colors = c.colorPallet(3,swatchSize,3,palletSize).sort((a,b)=> {return  ( ((1/(a.b+2)) * a.g) + a.r) < ((1/(b.b+2)) * b.g) + b.r;});
             defineGradiants(colors);
             let group = fNft.selectAll('g.canvas').data([]);
             let circleGroup = fNft.selectAll('g.circle').data([]);
@@ -109,7 +109,9 @@
             let flower = fNft.selectAll('g.flower').data([]);
             let x = d3.scaleLinear().domain([margin, width]).range([0, width + margin + margin]);
             let y = Y = d3.scaleLinear().domain([margin, height]).range([0, height + margin + margin]);
+            //let z = d3.scaleLinear().domain([1,100]).range([...colors.map((v,i,a)=>{ return `rgb(${v.r},${v.g},${v.b})`; })]);
             let z = Z = (n)=>{ let c = colors[useRandom()];  return `rgb(${c.r},${c.g},${c.b})`; };
+            //let points = [...c.nFibonacci(14).slice(9,16),...c.nFibonacci(14).slice(9,16)];
             
           
 
@@ -135,8 +137,8 @@
                         .append('g')
                             .attr('class', 'canvas')
                             .append('rect')
-                                .attr('width', Math.floor(dims.width + m.l + m.r))
-                                .attr('height', Math.floor(dims.height + m.t + m.b))
+                                .attr('width', '100%')//Math.floor(dims.width + m.l + m.r))
+                                .attr('height', '100%')//Math.floor(dims.height + m.t + m.b))
                                 .attr('stroke-width', 2 * (c.pHi))
                                 .attr('stroke', (d)=>{  return grad[meBeTheOne+9];})
                                 .attr('fill', (d)=>{ return grad[meBeTheOne+16];});
@@ -212,7 +214,7 @@
                             .attr('filter', (d,i)=>{ return (i%7>4)?'none':'url(#f1)';});
                             //.attr('transform', `skewX(${useRandom2()})`)
                             //.attr('transform', `skewY(${skewx})`);
-                    group.attr('transform', (d,i)=>{ return `scale(${(i%2)?.125:.0625})`});
+                    group.attr('transform', (d,i)=>{ return `scale(${(i%2)?.125:.618})`});
                     group.append('circle')
                             .attr('fill', (d,i)=>{ return 'none';  })//
                             //.attr('stroke-width', (d,i)=>{ return d.circle.r *  useRandom2() * Math.pow( (c.pHi - 1) ,i)})
@@ -224,7 +226,7 @@
                             .attr('cy', (d,i)=>{  let val = ((data.length-(data.length%4))/4) * (dims.height/data.length) * ((i%4)+1) ; let val2 = ((i%2==0)?2:1)*d.circle.r * .5 * (2/dims.height) * dims.height; return val;})
                             .attr('cx', (d,i)=>{ let val = ((data.length-(data.length%2))/2) * (dims.width/data.length) * ((i%2)+1) ; let val2 = ((i%2==0)?2:1)*d.circle.r * .5 * (2/dims.width) * dims.width; return (i%3!==0)?val - (d.circle.r * .5):val + (d.circle.r * .5); }) //(i * c.pHi * d.circle.r * .0125) +
                             .attr('r', (d,i)=>{ let r = d.circle.r; return r})
-                            .attr('fill-opacity', 1)
+                            .attr('fill-opacity', (d,i)=>{ return d.r > 1024?0:useRandom2()/useRandom2();})
                             .attr('transform', (d,i)=>{return (skew)?'skewY(0)':`skewX(${(i>data.length*.75)?skewx:useRandom()})`})
                             .attr('transform', (d,i)=>{return (skew)?'skewX(0)':`skewY(${(i>data.length*.75)?skewx:useRandom()})`})
                            
@@ -344,7 +346,7 @@
                     lg1 .append('stop').attr('offset', '100%').attr('style', `stop-color:${Z(useRandom())};stop-opacity:1`);
                     grad.push(`url(#${tId})`);
                 //let commands = ['M','c','l','c','c','l','l','c','c','c','l','Z'];
-                let commands = (i%3==2)?['M','c','c','c','c','c','c','c','c','c','c','c','c','Z']:['M','l','c','c','c','c','c','c','l','c','c','c','c','Z'];
+                let commands = (i%3==2)?['M','c','c','c','c','Z']:['M','l','c','c','c','c','c','c','l','c','c','c','c','Z'];
                 let shape = [`${commands[0]} ${useRandom() + path[i + i*2]},${useRandom() + path[i + i*2 +1]}`,
                     ...commands.slice(1,commands.length-1)
                     .map( (v,i,a)=>{
@@ -366,7 +368,7 @@
                     group   .append('path')
                             .attr('stroke-width', (d,i)=>{ return useRandom2() + 88;})//randoms[`${i}`][4];})
                             .attr('stroke', (d,i)=>{ return grad[(meBeTheOne+14)];})
-                            .attr('stroke-opacity', 1)
+                            .attr('stroke-opacity', .5)
                             .attr('fill', (d,i)=>{ return i%3>1?grad[(meBeTheOne+14)]:'none';})
                             .attr('d', (d)=>{ return `${d.join(' ')+'Z'}`})
                     group
@@ -375,7 +377,7 @@
                             .attr('transform', (d,i)=>{ return `skewY(${randoms[i][2]})`;});
                     group        
                             .attr('transform', (d,i)=>{ return `translate(${randoms[i][1]} ${randoms[i][0]})`;});
-                    group.attr('transform', 'scale(.15)');
+                    group.attr('transform', 'scale(.195)');
                      action.exit().remove();
 
             };
@@ -422,27 +424,70 @@
                 let group = action.enter().append('g')
                     .attr('class','polys')
                     .attr('transform', 'skewX(-120)')
-                    .attr('opacity', '.125')
+                    .attr('opacity', 1)
                     .attr('transform', `rotate(-${47 * c.pHi})`);
+                    
+                 
                  group.append('polygon')
                     .attr('stroke-width',(d,i)=>{return useRandom2();})
-                    .attr('stroke-opacity', .3)
-                    .attr('stroke', (d,i)=>{ return grad[(meBeTheOne+28)];})                    
-                    .attr('fill', (d,i)=>{  return grad[(meBeTheOne+15)];; return `url(#${baseTid})`; let num = useRandom(); let color = z(num); return color;})
-                    .attr('fill-opacity', .3)
+                    .attr('stroke-opacity', 1)
+                    .attr('stroke', (d,i)=>{ return grad[i+13];})                    
+                    .attr('fill', (d,i)=>{  return grad[i+20]; return `url(#${baseTid})`; let num = useRandom(); let color = z(num); return color;})
+                    .attr('fill-opacity', 1)
                     .attr('points', (d)=>{ return d;})
-                    .attr('transform','scale(2)')
+                    .attr('transform','scale(5)')
                     .attr('transform', (d,i)=>{ return `skewX(${randoms[i][2]})`;})
                     .attr('transform', (d,i)=>{ return `skewY(${randoms[`${i}`][3]})`;})
                     .attr('transform', (d,i)=>{ return `rotate(${randoms[`${i}`][4]})`;});
-                group.attr('transform','scale(8)');
+                group.attr('transform','scale(3)');
                 group.attr('filter', 'url(#f1)');
+
+
                 action.exit().remove();
 
             };         
             let drawFoL = function(data) {
                 let center = {'x':(dims.w / 16) , 'y': (dims.h / 16)}
                 let radius = (dims.h/16 * (c.pHi-1) /6);
+                //distance = sqrt((x2 - x1)^2 + (y2 - y1)^2)  = 
+                //  (y2 - center.y) = sqrt((radius)^2 - (.5 * radius)^2)
+                // y2 = sqrt((radius)^2 - (.5 * radius)^2) - center.y
+                let steps = [];
+                steps.push((y1)=>{return Math.sqrt(Math.pow(Math.sqrt(Math.pow(radius,2) - Math.pow((.5 * radius),2)) - y1,2));});
+                steps.push((y1)=>{return Math.sqrt(Math.pow(Math.sqrt(Math.pow(radius,2) - Math.pow((.5 * radius),2)) + y1,2));});
+                data[0] = {'cx': center.x - radius *.5, 'cy': center.y, 'r': radius};
+                data[1] = {'cx': center.x + radius *.5, 'cy': center.y, 'r': radius};
+                data[2] = {'cx': center.x, 'cy': steps[0](center.y), 'r':radius };
+                data[3] = {'cx': center.x - radius * .5 , 'cy': steps[0](data[2].cy), 'r':radius };
+                data[4] = {'cx': center.x + radius * .5 , 'cy': steps[0](data[2].cy), 'r':radius };
+                data[5] = {'cx': center.x + radius * 1 , 'cy': steps[0](data[0].cy), 'r':radius };
+                data[6] = {'cx': center.x - radius * 1 , 'cy': steps[0](data[1].cy), 'r':radius };
+                data[7] = {'cx': center.x + radius * 1 , 'cy': steps[1](data[0].cy), 'r':radius };
+                data[8] = {'cx': center.x - radius * 1 , 'cy': steps[0](data[3].cy), 'r':radius };
+                data[9] = {'cx': center.x + radius * 1.5 , 'cy': steps[0](data[2].cy), 'r':radius };
+                data[10] = {'cx': center.x - radius * 1.5 , 'cy': steps[1](data[2].cy), 'r':radius };
+                data[11] = {'cx': center.x + radius * 1.5 , 'cy': steps[0](data[7].cy), 'r':radius };
+                data[12] = {'cx': center.x - radius * 1.5 , 'cy': steps[1](data[8].cy), 'r':radius };
+                data[13] = {'cx': center.x + radius * 2 , 'cy': steps[0](data[0].cy), 'r':radius };
+                data[14] = {'cx': center.x - radius * 2 , 'cy': steps[1](data[3].cy), 'r':radius };
+                data[15] = {'cx': center.x + radius * 2 , 'cy': steps[0](data[4].cy), 'r':radius };
+                data[16] = {'cx': center.x - radius * 2 , 'cy': steps[1](data[11].cy), 'r':radius };
+                data[17] = {'cx': center.x + radius * 2.5 , 'cy': steps[1](data[6].cy), 'r':radius };
+                data[18] = {'cx': center.x - radius * 2.5 , 'cy': steps[0](data[7].cy), 'r':radius };
+                data[19] = {'cx': center.x + radius * 2.5 , 'cy': steps[1](data[8].cy), 'r':radius };
+                data[20] = {'cx': center.x - radius * 2.5 , 'cy': steps[0](data[5].cy), 'r':radius };
+                data[21] = {'cx': center.x + radius * 3 , 'cy': steps[1](data[0].cy), 'r':radius };
+                data[22] = {'cx': center.x - radius * 3 , 'cy': steps[0](data[0].cy), 'r':radius };
+                data[23] = {'cx': center.x + radius * 3 , 'cy': steps[1](data[3].cy), 'r':radius };
+                data[24] = {'cx': center.x - radius * 3 , 'cy': steps[0](data[4].cy), 'r':radius };
+                data[25] = {'cx': center.x + radius * 3.5 , 'cy': steps[1](data[2].cy), 'r':radius };
+                data[26] = {'cx': center.x - radius * 3.5 , 'cy': steps[0](data[2].cy), 'r':radius };
+                data[27] = {'cx': center.x + radius * 2 , 'cy': steps[1](data[17].cy), 'r':radius };
+                data[28] = {'cx': center.x - radius * 2 , 'cy': steps[0](data[19].cy), 'r':radius };
+                data[29] = {'cx': center.x + radius * 2.5 , 'cy': steps[1](data[21].cy), 'r':radius };
+                data[30] = {'cx': center.x - radius * 2.5 , 'cy': steps[0](data[15].cy), 'r':radius };
+                data[31] = {'cx': center.x + radius * 1.5 , 'cy': steps[1](data[21].cy), 'r':radius };
+                data[32] = {'cx': center.x - radius * 3 , 'cy': steps[0](data[29].cy), 'r':radius };
                 let action = flower.data(data);
                 let petals = action.enter().append('g').attr('class','flower');
                 petals
@@ -452,27 +497,63 @@
                         .attr('r', (d,i)=> {return d.r;})
                         .attr('fill', (d,i)=>{ return 'none'; return i===i?`${grad[20*7+18]}`:'none'})
                         .attr('fill-opacity', 1)
-                        .attr('stroke-width', .175)
-                        .attr('stroke-opacity', .04)
-                        .attr('stroke', (d,i)=> {return grad[meBeTheOne+6];})
-                        .attr('transform', `skewY(${useRandom2()})`);
+                        .attr('stroke-width', 1* .618 * .618 * .618 * .618 * .618 * .618 * .618* .618)
+                        .attr('stroke-opacity', .125)
+                        .attr('stroke', (d,i)=> {return grad[meBeTheOne+31];})
+                        ;
                 
-                         action.exit().remove();
+                 
+                    petals.attr('transform', 'skewY(-20)');
+                    petals.attr('transform', 'skewX(44)');
+                    petals.attr('transform', `scale(${1.618 * 1.618 * 1.618 * 1.618  * 1.618})`);       
+                action.exit().remove();
             };               
             fNft.attr('width', "100%"/*Math.floor(width + margin + margin) */).attr('height', '100%' /* Math.floor(height + margin + margin) */).attr('class', 'uk-preserve');
             let draw = ((c,dims={'width':1280,'height':720},m={'t':10,'b':10,'l':10,'r':10})=>{
+                let fuckUjs = t = new Date();
                 let count = 0;
                 CanvasLayer([...new Array(1)], {'width': width, 'height': height},{'t':margin,'b':margin,'l':margin,'r':margin});
-                polyLayer([...new Array(useRandom())],dims,m);
+                polyLayer([...new Array(useRandom2())],dims,m);
                 let test = 0;
                 let u = [];
-
+               // for(let i in [...new Array(20002)]){ u.push(t.getTime() *.0000001 * c.pHi * (i+1)); }
                 console.log(u);
-                      rectangleLayer([...new Array(8)],dims,m,32); 
+              // while(++count < 31) {
+                    console.log(Math.floor(u[count]), Math.floor(u[count])%293);
+                    //test = Math.floor(u[count])%74;
+                    //console.log(test);
+                    //switch(test) {
+                      //  case(16):
+
+                      rectangleLayer([...new Array(3)],dims,m,32); 
                       circleLayer([...new Array(useRandom())],dims,m,useRandom2,true);
+                        //case(24):
+                            //circleLayer([...new Array(8000)],dims,m,useRandom2,t.getTime()%2);
+                        //case(32):
                       shapeLayer([...new Array(1)], dims,m,2);
+                      drawFoL([...new Array(32)]);
+                        //case(71):
+                            
+                  //  }
+                //}
+
+               //circleLayer([...new Array(c.nFibonacci(100)[useRandom2()] * c.nFibonacci(100)[useRandom2()]* c.nFibonacci(100)[useRandom2()])],dims,m);
+                
+
+               
             });
             draw(c,{'width': width, 'height': height},{'t':margin,'b':margin,'l':margin,'r':margin});
-
+            /** 
+            setInterval(
+            draw, 2048, c,{'width': width, 'height': height},{'t':margin,'b':margin,'l':margin,'r':margin});
+            
+                            group    
+                .append('path')
+                .attr('strokeWidth', 2)
+                .attr('stroke-width', 2)                
+                .attr('stroke', (d)=>{ return z(c.secRandom(3));})
+                .attr('fill', (d)=>{ return z(c.secRandom(3));})
+                .attr('d',`${shape2.join(' ')+' z'}`);
+            **/
         </script>
 </html>
