@@ -6,7 +6,7 @@ I Pledge allegience to the quality standards inherant in the code base provided.
 There is no way to hold anyone accountable for maintaining quality beyond that.
 I pledge allegience to the code formatting best practices set forth by Douglas 
 Crockford at least in as far as I comprehend the purpose of those practices. I 
-accept that using a jslint plugin in my IDE is neccessary and indispencable from
+accept that using a jslint plugin in my IDE is neccessary and indispensable from
 quality code.   I pledge allegience to the future and give my word bound by my 
 honor that I will  make the best of my present including all contributions made
 to this project so the future may realize its full potential.  
