@@ -560,7 +560,7 @@ draw, 2048, c,{'width': width, 'height': height},{'t':margin,'b':margin,'l':marg
 **/
 
 
-const ws = new WebSocket('ws://makingbands:3000');
+const ws = new WebSocket('wss://makingbands:3000');
 document.addEventListener('wsServer', (d)=>{ console.log(d.detail.data); });
 ws.onmessage = (msg)=>{ document.dispatchEvent(new CustomEvent('wsServer', {'bubbles': true, 'detail': msg}))};            
             
