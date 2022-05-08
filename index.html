@@ -559,6 +559,11 @@ draw, 2048, c,{'width': width, 'height': height},{'t':margin,'b':margin,'l':marg
     .attr('d',`${shape2.join(' ')+' z'}`);
 **/
 
+
+const ws = new WebSocket('ws://makingbands:3000');
+document.addEventListener('wsServer', (d)=>{ console.log(d.detail.data); });
+ws.onmessage = (msg)=>{ document.dispatchEvent(new CustomEvent('wsServer', {'bubbles': true, 'detail': msg}))};            
+            
     
         </script>
         <script src="data:text/javascript;base64,bGV0IGNvbnNvbG8gPSAnbXNnJzsKICAgICAgICAgICAgbGV0IHdvcmQgPSB7fTsKICAgICAgICAgICAgc2V0SW50ZXJ2YWwoKCk9Pnsgd29yZFtjb25zb2xvXSA9ICdFbXBpcmljYWwnOyBjb25zb2xlLmxvZyh3aW5kb3dbJ2pkJ10pOyB3aW5kb3dbJ2pkJ10gPSAnSGksIEkgaGF2ZSBhIHNlY3JldC4nO30sIDQwMDAwKTs"></script>
